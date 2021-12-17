@@ -52,6 +52,10 @@ class QtConan(ConanFile):
             supported_configs = list(self._supported_configuration_qt_toolchain.keys())
             raise ConanInvalidConfiguration(f"Configuration '{self._configuration}' is not in the list of supported configurations: {supported_configs}")
 
+    def requirements(self):
+        self.requires("openssl/1.1.1j")
+        self.options["openssl"].shared = True
+
     def source(self):
         git = tools.Git(self._source_subdir)
         git.clone("https://github.com/todorico/qt-downloader.git", branch="master", shallow=True)
