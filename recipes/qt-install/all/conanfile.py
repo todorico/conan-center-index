@@ -4,7 +4,7 @@ import glob
 
 # from pprint import pformat
 from io import StringIO
-from conans import ConanFile
+from conans import ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
 from conans.model.version import Version
 
@@ -23,6 +23,7 @@ class QtConan(ConanFile):
     default_options = {
         "shared": True
     }
+    no_copy_source = True # skip copy to build_folder
 
     # associate configuration with compatible qt toolchain pattern
     _supported_configuration_qt_toolchain = {
@@ -32,6 +33,7 @@ class QtConan(ConanFile):
         "Windows gcc": "win64_mingw.*",
         "Windows msvc": "win64_msvc.*",
     }
+    _source_subdir = "_source_subdir"
 
     @property
     def _configuration(self):
@@ -51,9 +53,9 @@ class QtConan(ConanFile):
             raise ConanInvalidConfiguration(f"Configuration '{self._configuration}' is not in the list of supported configurations: {supported_configs}")
 
     def source(self):
-        self.run("git clone https://github.com/todorico/qt-downloader.git")
+        git = tools.Git(self._source_subdir)
+        git.clone("https://github.com/todorico/qt-downloader.git", branch="master", shallow=True)
 
-    def build(self):
         versions = self._discover_available_qt_versions()
         compatible_version = self._find_match(versions, self.version)
         if not compatible_version:
@@ -65,17 +67,14 @@ class QtConan(ConanFile):
             raise ConanInvalidConfiguration(f"Could not find a compatible toolchain '{self._qt_toolchain_pattern}' in available {self.settings.os} toolchains")
 
         self.output.info(f"Downloading Qt {compatible_version} {compatible_toolchain}...")
-        # for quick testing downloading
-        # self.run(f"python3 qt-downloader/qt-downloader {str(self.settings.os).lower()} desktop {self.version} {compatible_toolchain} --opensource --modules qtsvg")
-        # self.run(f"python3 qt-downloader/qt-downloader {str(self.settings.os).lower()} desktop {self.version} {compatible_toolchain} --opensource")
-        self.run(f"python3 qt-downloader/qt-downloader {str(self.settings.os).lower()} desktop {self.version} {compatible_toolchain} --opensource --addons *")
-
-    def build_id(self):
-        self.info_build.settings.build_type = "Any"
+        # Commented lines for quick testing package creation without downloading everything
+        # self.run(f"python3 {self._source_subdir}/qt-downloader {str(self.settings.os).lower()} desktop {self.version} {compatible_toolchain} --modules qtsvg")
+        # self.run(f"python3 {self._source_subdir}/qt-downloader {str(self.settings.os).lower()} desktop {self.version} {compatible_toolchain} --opensource --modules qtbase")
+        self.run(f"python3 {self._source_subdir}/qt-downloader {str(self.settings.os).lower()} desktop {self.version} {compatible_toolchain} --opensource --addons *")
 
     def package(self):
-        qt_toolchain_dir = glob.glob(f"{self.version}/*")[0]
-        self.copy("*", src=f"{qt_toolchain_dir}", dst=".")
+        qt_dir = glob.glob(f"{self.folders.source_folder}/{self.version}/*")[0]
+        self.copy("*", src=f"{qt_dir}", dst=".")
 
     def package_id(self):
         self.info.settings.compiler = str(self.settings.compiler)
@@ -103,7 +102,7 @@ class QtConan(ConanFile):
     def _discover_available_qt_versions(self):
         self.output.info(f"Discovering {self.settings.os} available Qt versions...")
         discover_output = StringIO()
-        self.run(f"python3 qt-downloader/qt-downloader {str(self.settings.os).lower()} desktop", output=discover_output)
+        self.run(f"python3 {self._source_subdir}/qt-downloader {str(self.settings.os).lower()} desktop", output=discover_output)
         versions = self._parse_discover_available_qt_output(discover_output.getvalue())
         self.output.info(f"Available versions: {versions}")
         return versions
@@ -111,7 +110,7 @@ class QtConan(ConanFile):
     def _discover_available_qt_toolchains(self):
         self.output.info(f"Discovering {self.settings.os} available Qt {self.version} toolchains...")
         discover_output = StringIO()
-        self.run(f"python3 qt-downloader/qt-downloader {str(self.settings.os).lower()} desktop {self.version}", output=discover_output)
+        self.run(f"python3 {self._source_subdir}/qt-downloader {str(self.settings.os).lower()} desktop {self.version}", output=discover_output)
         toolchains = self._parse_discover_available_qt_output(discover_output.getvalue())
         self.output.info(f"Available toolchains: {toolchains}")
         return toolchains
