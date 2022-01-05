@@ -1,0 +1,6 @@
+patches:
+  "8.1.2":
+    - patch_file: "patches/0001-qt-plugin-install.patch"
+      base_path: "subfolder"
+      patch_type: backport
+      patch_description: Needed to install using modern cmake

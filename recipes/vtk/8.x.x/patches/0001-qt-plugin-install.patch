@@ -1,0 +1,11 @@
+--- a/GUISupport/Qt/PluginInstall.cmake.in
++++ b/GUISupport/Qt/PluginInstall.cmake.in
+@@ -14,7 +14,7 @@ set(VTK_INSTALL_QT_PLUGIN_FILE "@CMAKE_SHARED_LIBRARY_PREFIX@QVTKWidgetPlugin${B
+ set(VTK_CONFIGURATIONS "@CMAKE_CONFIGURATION_TYPES@")
+ 
+ if(VTK_CONFIGURATIONS)
+-  set(VTK_LIBSUBDIR "/${BUILD_TYPE}")
++  set(VTK_LIBSUBDIR "/${CMAKE_INSTALL_CONFIG_NAME}")
+ endif()
+ 
+ # Install the file to the specified location.
