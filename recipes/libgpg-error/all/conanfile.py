@@ -10,7 +10,7 @@ required_conan_version = ">=1.33.0"
 
 
 class GPGErrorConan(ConanFile):
-    version = "1.36"
+    # version = "1.36"
     name = "libgpg-error"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gnupg.org/software/libgpg-error/index.html"
@@ -56,6 +56,7 @@ class GPGErrorConan(ConanFile):
             destination=self._source_subfolder,
             strip_root=True,
         )
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -78,7 +79,6 @@ class GPGErrorConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         autotools.configure(self._source_subfolder)
         autotools.make()
