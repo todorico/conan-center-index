@@ -1,0 +1,14 @@
+sources:
+  "1.0.0":
+    url: "https://github.com/valette/ACVD/archive/c23a2e8e1ece7a25b7e785b3cde114b906045f66.zip" # last master
+    sha256: "0b6696cb4fd4e03e9b7d6d83a827d750327a5e51811a7ce88fac55af80a13d1e"
+    # url: "https://github.com/valette/ACVD/archive/849f8d33f2bf3f0a9e674b87615afbeac38ce03e.zip" # My Used Version
+    # sha256: "5f1ae93dc1c9f28e42202b877de411736e7cbe4344e36d44a0d1c88bdf342f53"
+    # url: "https://github.com/valette/ACVD/archive/e9000d1e9e37cdf526e8afc5bc1ef0c3aff52f95.zip" # Last commit before DiscreteRemeshing library removal
+    # sha256: "46ba7c1683c7653a9a4cd756603c9b0d43e2ebced0d903fa470d344ba4c990a6"
+patches:
+  "1.0.0":
+    - patch_file: "patches/001-fix-package-config.patch"
+      base_path: "source_subfolder"
+    - patch_file: "patches/002-fix-discrete-remeshing-ref.patch"
+      base_path: "source_subfolder"
