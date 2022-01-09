@@ -74,5 +74,7 @@ class ACVDConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        # Use the provided package config
+        self.cpp_info.set_property("cmake_file_name", "ACVD")
+        self.cpp_info.set_property("cmake_target_name", "ACVD::ACVD")
+        # Prevent CMakeDeps from generating another package config file.
         self.cpp_info.set_property("cmake_find_mode", "none")

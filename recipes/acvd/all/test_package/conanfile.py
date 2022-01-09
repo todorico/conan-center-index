@@ -1,36 +1,42 @@
 import os
 
-from conans import ConanFile, tools
+from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain
 
+# TODO: remove legacy imports
+from conans import tools
+
 required_conan_version = ">=1.44.0"
+
+
+def cmake_add_pkg_vars(conanfile, toolchain, package):
+    pkg = conanfile.dependencies[package]
+    pkg_refs = ["version"]
+    for r in pkg_refs:
+        toolchain.variables["_pkg_" + r] = getattr(pkg.ref, r)
+    pkg_props = ["cmake_file_name", "cmake_target_name"]
+    for p in pkg_props:
+        toolchain.variables["_pkg_" + p] = pkg.cpp_info.get_property(p)
+    pkg_variables = ["_pkg_" + v for v in pkg_refs + pkg_props]
+    toolchain.variables["_pkg_variables"] = ";".join(pkg_variables)
 
 
 class TestPackage(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "VirtualRunEnv"
 
-    @property
-    def _pkg(self):
-        return self.dependencies["acvd"]
-
-    def _pkg_prop(self, prop):
-        return self._pkg.cpp_info.get_property(prop)
-
     def generate(self):
-        cmake_tc = CMakeToolchain(self)
-        cmake_tc.variables["_pkg_name"] = "ACVD"
-        cmake_tc.variables["_pkg_version"] = self._pkg.ref.version
-        cmake_tc.generate()
+        tc = CMakeToolchain(self)
+        cmake_add_pkg_vars(self, tc, "acvd")
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-        cmake.install()  # not needed with layout
+        cmake.install()
 
     def test(self):
         if not tools.cross_building(self):
-            # test = os.path.join(self.cpp.build.bindirs[0], "test_package") # with layout only
             test = os.path.join(self.package_folder, "test_package")
             self.run(test, env="conanrun")
