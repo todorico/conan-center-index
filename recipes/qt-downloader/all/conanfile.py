@@ -1,4 +1,4 @@
-import sys, subprocess
+import os, sys, subprocess
 
 from conan import ConanFile
 
@@ -46,3 +46,6 @@ class QtDownloaderConan(ConanFile):
 
     def package(self):
         self.copy("qt-downloader*", dst="bin", src=self.source_folder)
+
+    def package_info(self):
+        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
