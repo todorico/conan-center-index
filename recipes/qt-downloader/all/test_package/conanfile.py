@@ -1,4 +1,7 @@
-from conans import ConanFile, tools
+from conan import ConanFile
+
+# TODO: remove legacy imports
+from conans import tools
 
 
 class TestPackage(ConanFile):

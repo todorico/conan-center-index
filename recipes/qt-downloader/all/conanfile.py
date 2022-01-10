@@ -1,10 +1,9 @@
-import os, sys, subprocess, textwrap
+import sys, subprocess
 
 from conan import ConanFile
 
 # TODO: remove legacy imports
 from conans import tools
-from conans.errors import ConanInvalidConfiguration
 
 
 class PipPackageTool:
@@ -23,9 +22,6 @@ class QtDownloaderConan(ConanFile):
     license = "MIT"
     description = "Program to download and install qt versions."
     topics = "cli", "qt", "downloader", "installer"
-
-    # Binary configuration
-    settings = "os"
 
     # Package options
     no_copy_source = True  # skip copy to build_folder
